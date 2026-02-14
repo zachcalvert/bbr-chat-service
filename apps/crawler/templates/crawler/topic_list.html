@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Web Crawler - Topics{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Web Crawler</h1>
+    <a href="{% url 'crawler:topic_create' %}" class="btn btn-primary">Add Topic</a>
+</div>
+
+<div class="topics-list">
+    {% for topic in topics %}
+    <div class="topic-card">
+        <div class="topic-header">
+            <h3><a href="{% url 'crawler:topic_detail' topic.pk %}">{{ topic.name }}</a></h3>
+            {% if topic.is_active %}
+            <span class="badge badge-success">Active</span>
+            {% else %}
+            <span class="badge badge-muted">Inactive</span>
+            {% endif %}
+        </div>
+        <p class="keywords">Keywords: {{ topic.keywords_display }}</p>
+        <div class="topic-meta">
+            <span>{{ topic.crawled_pages.count }} pages</span>
+            <span>Every {{ topic.crawl_frequency_hours }}h</span>
+            {% if topic.last_crawled_at %}
+            <span>Last crawl: {{ topic.last_crawled_at|timesince }} ago</span>
+            {% else %}
+            <span>Never crawled</span>
+            {% endif %}
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-state">
+        <p>No topics configured yet.</p>
+        <a href="{% url 'crawler:topic_create' %}" class="btn btn-primary">Create your first topic</a>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="section-divider"></div>
+
+<h2>All Crawled Pages</h2>
+<p><a href="{% url 'crawler:page_list' %}">View all crawled pages &rarr;</a></p>
+{% endblock %}

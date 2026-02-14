@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}{{ entry.title }} - Knowledge{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <a href="{% url 'knowledge:list' %}" class="back-link">&larr; Back to Knowledge Base</a>
+        <h1>{{ entry.title }}</h1>
+        {% if entry.category %}
+        <span class="badge">{{ entry.category }}</span>
+        {% endif %}
+    </div>
+    <div class="actions">
+        <a href="{% url 'knowledge:edit' entry.pk %}" class="btn btn-secondary">Edit</a>
+        <form action="{% url 'knowledge:delete' entry.pk %}" method="post" style="display: inline;"
+              onsubmit="return confirm('Are you sure you want to delete this entry?');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+    </div>
+</div>
+
+<div class="entry-content">
+    <div class="content-section">
+        <h2>Content</h2>
+        <div class="prose">{{ entry.content|linebreaks }}</div>
+    </div>
+
+    {% if entry.source_url %}
+    <div class="content-section">
+        <h2>Source</h2>
+        <a href="{{ entry.source_url }}" target="_blank" rel="noopener">{{ entry.source_url }}</a>
+    </div>
+    {% endif %}
+
+    <div class="content-section">
+        <h2>Embedded Chunks ({{ chunks.count }})</h2>
+        <div class="chunks-list">
+            {% for chunk in chunks %}
+            <div class="chunk-card">
+                <span class="chunk-index">#{{ chunk.chunk_index }}</span>
+                <p>{{ chunk.content|truncatewords:50 }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="entry-meta-footer">
+    <p>Created: {{ entry.created_at|date:"F j, Y, g:i a" }}</p>
+    <p>Updated: {{ entry.updated_at|date:"F j, Y, g:i a" }}</p>
+</div>
+{% endblock %}

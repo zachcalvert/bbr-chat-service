@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Crawl Job - {{ job.topic.name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <a href="{% url 'crawler:topic_detail' job.topic.pk %}" class="back-link">&larr; Back to {{ job.topic.name }}</a>
+        <h1>Crawl Job</h1>
+        <span class="badge badge-{{ job.status }}">{{ job.get_status_display }}</span>
+    </div>
+</div>
+
+<div class="job-info">
+    <div class="info-row">
+        <strong>Topic:</strong>
+        <a href="{% url 'crawler:topic_detail' job.topic.pk %}">{{ job.topic.name }}</a>
+    </div>
+    <div class="info-row">
+        <strong>Created:</strong>
+        <span>{{ job.created_at|date:"F j, Y, g:i a" }}</span>
+    </div>
+    {% if job.started_at %}
+    <div class="info-row">
+        <strong>Started:</strong>
+        <span>{{ job.started_at|date:"F j, Y, g:i a" }}</span>
+    </div>
+    {% endif %}
+    {% if job.completed_at %}
+    <div class="info-row">
+        <strong>Completed:</strong>
+        <span>{{ job.completed_at|date:"F j, Y, g:i a" }}</span>
+    </div>
+    {% endif %}
+    <div class="info-row">
+        <strong>Pages Discovered:</strong>
+        <span>{{ job.pages_discovered }}</span>
+    </div>
+    <div class="info-row">
+        <strong>Pages Crawled:</strong>
+        <span>{{ job.pages_crawled }}</span>
+    </div>
+    {% if job.error_message %}
+    <div class="info-row error">
+        <strong>Error:</strong>
+        <span>{{ job.error_message }}</span>
+    </div>
+    {% endif %}
+</div>
+
+{% if pages %}
+<div class="content-section">
+    <h2>Pages Crawled in This Job</h2>
+    <div class="pages-list">
+        {% for page in pages %}
+        <div class="page-card">
+            <h4><a href="{% url 'crawler:page_detail' page.pk %}">{{ page.title|default:page.url }}</a></h4>
+            <p class="page-url">{{ page.url|truncatechars:80 }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

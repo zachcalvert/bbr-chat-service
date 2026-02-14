@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}{{ action }} Topic{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <a href="{% url 'crawler:topic_list' %}" class="back-link">&larr; Back to Topics</a>
+        <h1>{{ action }} Topic</h1>
+    </div>
+</div>
+
+<form method="post" class="form">
+    {% csrf_token %}
+
+    <div class="form-group">
+        <label for="id_name">Topic Name</label>
+        {{ form.name }}
+        {% if form.name.errors %}
+        <span class="error">{{ form.name.errors.0 }}</span>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        <label for="id_keywords_input">Keywords</label>
+        {{ form.keywords_input }}
+        {% if form.keywords_input.errors %}
+        <span class="error">{{ form.keywords_input.errors.0 }}</span>
+        {% endif %}
+        <p class="help-text">Enter one keyword or phrase per line. These will be used to search for relevant pages.</p>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label for="id_crawl_frequency_hours">Crawl Frequency (hours)</label>
+            {{ form.crawl_frequency_hours }}
+            {% if form.crawl_frequency_hours.errors %}
+            <span class="error">{{ form.crawl_frequency_hours.errors.0 }}</span>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="id_max_pages_per_crawl">Max Pages per Crawl</label>
+            {{ form.max_pages_per_crawl }}
+            {% if form.max_pages_per_crawl.errors %}
+            <span class="error">{{ form.max_pages_per_crawl.errors.0 }}</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="form-group checkbox-group">
+        {{ form.is_active }}
+        <label for="id_is_active">Active (enable automatic crawling)</label>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">{{ action }} Topic</button>
+        <a href="{% url 'crawler:topic_list' %}" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+{% endblock %}

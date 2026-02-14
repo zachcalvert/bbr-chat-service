@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Crawled Pages{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Crawled Pages</h1>
+</div>
+
+{% if topics %}
+<div class="filter-bar">
+    <span>Filter by topic:</span>
+    <a href="{% url 'crawler:page_list' %}" class="{% if not current_topic %}active{% endif %}">All</a>
+    {% for topic in topics %}
+    <a href="?topic={{ topic.pk }}" class="{% if current_topic == topic.pk|stringformat:'s' %}active{% endif %}">{{ topic.name }}</a>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="pages-list">
+    {% for page in pages %}
+    <div class="page-card">
+        <h4><a href="{% url 'crawler:page_detail' page.pk %}">{{ page.title|default:page.url }}</a></h4>
+        <p class="page-url">{{ page.url|truncatechars:80 }}</p>
+        <div class="page-meta">
+            <span class="badge">{{ page.topic.name }}</span>
+            <span>{{ page.chunks.count }} chunks</span>
+            <span>Crawled {{ page.crawled_at|timesince }} ago</span>
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-state">
+        <p>No pages crawled yet.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

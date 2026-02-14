@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page.title|default:"Page" }} - Crawler{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <a href="{% url 'crawler:topic_detail' page.topic.pk %}" class="back-link">&larr; Back to {{ page.topic.name }}</a>
+        <h1>{{ page.title|default:"Untitled Page" }}</h1>
+    </div>
+    <div class="actions">
+        <a href="{{ page.url }}" target="_blank" rel="noopener" class="btn btn-secondary">Visit Page</a>
+        <form action="{% url 'crawler:page_delete' page.pk %}" method="post" style="display: inline;"
+              onsubmit="return confirm('Delete this page?');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+    </div>
+</div>
+
+<div class="page-info">
+    <div class="info-row">
+        <strong>URL:</strong>
+        <a href="{{ page.url }}" target="_blank" rel="noopener">{{ page.url }}</a>
+    </div>
+    <div class="info-row">
+        <strong>Topic:</strong>
+        <a href="{% url 'crawler:topic_detail' page.topic.pk %}">{{ page.topic.name }}</a>
+    </div>
+    <div class="info-row">
+        <strong>Crawled:</strong>
+        <span>{{ page.crawled_at|date:"F j, Y, g:i a" }}</span>
+    </div>
+</div>
+
+<div class="content-section">
+    <h2>Content</h2>
+    <div class="prose">{{ page.content|linebreaks }}</div>
+</div>
+
+<div class="content-section">
+    <h2>Embedded Chunks ({{ chunks.count }})</h2>
+    <div class="chunks-list">
+        {% for chunk in chunks %}
+        <div class="chunk-card">
+            <span class="chunk-index">#{{ chunk.chunk_index }}</span>
+            <p>{{ chunk.content|truncatewords:50 }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

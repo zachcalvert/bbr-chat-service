@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}{{ topic.name }} - Crawler{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <a href="{% url 'crawler:topic_list' %}" class="back-link">&larr; Back to Topics</a>
+        <h1>{{ topic.name }}</h1>
+        {% if topic.is_active %}
+        <span class="badge badge-success">Active</span>
+        {% else %}
+        <span class="badge badge-muted">Inactive</span>
+        {% endif %}
+    </div>
+    <div class="actions">
+        <form action="{% url 'crawler:topic_crawl' topic.pk %}" method="post" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Crawl Now</button>
+        </form>
+        <a href="{% url 'crawler:topic_edit' topic.pk %}" class="btn btn-secondary">Edit</a>
+        <form action="{% url 'crawler:topic_delete' topic.pk %}" method="post" style="display: inline;"
+              onsubmit="return confirm('Delete this topic and all its crawled pages?');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+    </div>
+</div>
+
+<div class="topic-info">
+    <div class="info-row">
+        <strong>Keywords:</strong>
+        <span>{{ topic.keywords_display }}</span>
+    </div>
+    <div class="info-row">
+        <strong>Crawl Frequency:</strong>
+        <span>Every {{ topic.crawl_frequency_hours }} hours</span>
+    </div>
+    <div class="info-row">
+        <strong>Max Pages per Crawl:</strong>
+        <span>{{ topic.max_pages_per_crawl }}</span>
+    </div>
+    <div class="info-row">
+        <strong>Last Crawled:</strong>
+        <span>{% if topic.last_crawled_at %}{{ topic.last_crawled_at|date:"F j, Y, g:i a" }}{% else %}Never{% endif %}</span>
+    </div>
+</div>
+
+{% if jobs %}
+<div class="content-section">
+    <h2>Recent Crawl Jobs</h2>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Started</th>
+                <th>Status</th>
+                <th>Discovered</th>
+                <th>Crawled</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for job in jobs %}
+            <tr>
+                <td>{{ job.created_at|date:"M j, g:i a" }}</td>
+                <td>
+                    <span class="badge badge-{{ job.status }}">{{ job.get_status_display }}</span>
+                </td>
+                <td>{{ job.pages_discovered }}</td>
+                <td>{{ job.pages_crawled }}</td>
+                <td><a href="{% url 'crawler:job_detail' job.pk %}">Details</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<div class="content-section">
+    <h2>Crawled Pages ({{ topic.crawled_pages.count }})</h2>
+    <div class="pages-list">
+        {% for page in pages %}
+        <div class="page-card">
+            <h4><a href="{% url 'crawler:page_detail' page.pk %}">{{ page.title|default:page.url }}</a></h4>
+            <p class="page-url">{{ page.url|truncatechars:80 }}</p>
+            <div class="page-meta">
+                <span>{{ page.chunks.count }} chunks</span>
+                <span>Crawled {{ page.crawled_at|timesince }} ago</span>
+            </div>
+        </div>
+        {% empty %}
+        <p class="empty-state">No pages crawled yet. Click "Crawl Now" to start.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Incubator{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Dashboard</h1>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-value">{{ knowledge_count }}</div>
+        <div class="stat-label">Knowledge Entries</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ knowledge_chunks }}</div>
+        <div class="stat-label">Knowledge Chunks</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ topics_count }}</div>
+        <div class="stat-label">Active Topics</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ crawled_pages }}</div>
+        <div class="stat-label">Crawled Pages</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ crawled_chunks }}</div>
+        <div class="stat-label">Crawled Chunks</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ conversations }}</div>
+        <div class="stat-label">Conversations</div>
+    </div>
+</div>
+
+<div class="content-section">
+    <h2>Quick Actions</h2>
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        <a href="{% url 'knowledge:create' %}" class="btn btn-primary">Add Knowledge</a>
+        <a href="{% url 'crawler:topic_create' %}" class="btn btn-primary">Create Topic</a>
+        <a href="{% url 'chat:new' %}" class="btn btn-primary">Start Chat</a>
+    </div>
+</div>
+
+{% if recent_knowledge %}
+<div class="content-section">
+    <h2>Recent Knowledge Entries</h2>
+    {% for entry in recent_knowledge %}
+    <div class="entry-card">
+        <h3><a href="{% url 'knowledge:detail' entry.pk %}">{{ entry.title }}</a></h3>
+        {% if entry.category %}
+        <span class="badge">{{ entry.category }}</span>
+        {% endif %}
+        <p class="entry-preview">{{ entry.content|truncatewords:20 }}</p>
+        <div class="entry-meta">
+            <span>{{ entry.chunks.count }} chunks</span>
+            <span>Updated {{ entry.updated_at|timesince }} ago</span>
+        </div>
+    </div>
+    {% endfor %}
+    <a href="{% url 'knowledge:list' %}">View all knowledge entries &rarr;</a>
+</div>
+{% endif %}
+
+{% if recent_pages %}
+<div class="content-section">
+    <h2>Recently Crawled Pages</h2>
+    {% for page in recent_pages %}
+    <div class="page-card">
+        <h4><a href="{% url 'crawler:page_detail' page.pk %}">{{ page.title|default:page.url }}</a></h4>
+        <p class="page-url">{{ page.url|truncatechars:80 }}</p>
+        <div class="page-meta">
+            <span class="badge">{{ page.topic.name }}</span>
+            <span>{{ page.chunks.count }} chunks</span>
+            <span>{{ page.crawled_at|timesince }} ago</span>
+        </div>
+    </div>
+    {% endfor %}
+    <a href="{% url 'crawler:page_list' %}">View all crawled pages &rarr;</a>
+</div>
+{% endif %}
+{% endblock %}

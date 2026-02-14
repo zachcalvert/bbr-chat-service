@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Knowledge Base{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Knowledge Base</h1>
+    <a href="{% url 'knowledge:create' %}" class="btn btn-primary">Add Knowledge</a>
+</div>
+
+{% if categories %}
+<div class="filter-bar">
+    <span>Filter by category:</span>
+    <a href="{% url 'knowledge:list' %}" class="{% if not current_category %}active{% endif %}">All</a>
+    {% for cat in categories %}
+    <a href="?category={{ cat }}" class="{% if current_category == cat %}active{% endif %}">{{ cat }}</a>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="entries-list">
+    {% for entry in entries %}
+    <div class="entry-card">
+        <h3><a href="{% url 'knowledge:detail' entry.pk %}">{{ entry.title }}</a></h3>
+        {% if entry.category %}
+        <span class="badge">{{ entry.category }}</span>
+        {% endif %}
+        <p class="entry-preview">{{ entry.content|truncatewords:30 }}</p>
+        <div class="entry-meta">
+            <span>{{ entry.chunks.count }} chunks</span>
+            <span>Updated {{ entry.updated_at|timesince }} ago</span>
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-state">
+        <p>No knowledge entries yet.</p>
+        <a href="{% url 'knowledge:create' %}" class="btn btn-primary">Add your first entry</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

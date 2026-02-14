@@ -1,0 +1,26 @@
+# Django
+Django>=5.0,<6.0
+psycopg[binary]>=3.1
+dj-database-url>=2.1
+
+# Vector database
+pgvector>=0.2.4
+
+# Task queue
+celery>=5.3
+redis>=5.0
+django-celery-beat>=2.5
+
+# Web scraping
+trafilatura>=1.6
+requests>=2.31
+duckduckgo-search>=4.1
+
+# Ollama client
+httpx>=0.26
+
+# Frontend
+django-htmx>=1.17
+
+# Utilities
+python-dotenv>=1.0
