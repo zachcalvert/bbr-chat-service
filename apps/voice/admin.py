@@ -16,9 +16,11 @@ class VoiceMessageInline(admin.TabularInline):
 
 @admin.register(VoiceMember)
 class VoiceMemberAdmin(admin.ModelAdmin):
-    list_display = ['name', 'message_count', 'is_active', 'created_at']
+    list_display = ['display_name', 'name', 'message_count', 'is_active', 'created_at']
     list_filter = ['is_active']
-    search_fields = ['name']
+    search_fields = ['name', 'display_name']
+    readonly_fields = ['name', 'message_count', 'created_at', 'updated_at']
+    fields = ['display_name', 'name', 'is_active', 'message_count', 'created_at', 'updated_at']
     inlines = [VoiceMessageInline]
 
 

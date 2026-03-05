@@ -9,7 +9,7 @@
 
 {% for member in members %}
 <div class="entry-card">
-    <h3><a href="{% url 'voice:member_detail' member.pk %}">{{ member.name }}</a></h3>
+    <h3><a href="{% url 'voice:member_detail' member.pk %}">{{ member.label }}</a></h3>
     <div class="entry-meta">
         <span>{{ member.message_count }} messages</span>
         <span>Added {{ member.created_at|timesince }} ago</span>

@@ -6,7 +6,7 @@
 <a href="{% url 'voice:member_list' %}" class="back-link">&larr; All Voices</a>
 
 <div class="page-header">
-    <h1>{{ member.name }}</h1>
+    <h1>{{ member.label }}</h1>
     {% if member.is_active %}
     <span class="badge badge-success">Active</span>
     {% else %}

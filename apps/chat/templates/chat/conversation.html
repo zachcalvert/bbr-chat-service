@@ -25,7 +25,7 @@
                     <option value="">None</option>
                     {% for member in voice_members %}
                     <option value="{{ member.pk }}" {% if conversation.voice_id == member.pk and not conversation.voice_blend %}selected{% endif %}>
-                        {{ member.name }}
+                        {{ member.label }}
                     </option>
                     {% endfor %}
                 </select>
@@ -38,7 +38,7 @@
             </form>
             {% if conversation.voice or conversation.voice_blend %}
             <span class="badge badge-running">
-                {% if conversation.voice_blend %}Group Blend{% else %}{{ conversation.voice.name }}{% endif %}
+                {% if conversation.voice_blend %}Group Blend{% else %}{{ conversation.voice.label }}{% endif %}
             </span>
             {% endif %}
         </div>
