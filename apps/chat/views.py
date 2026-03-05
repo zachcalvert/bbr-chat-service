@@ -5,6 +5,8 @@ from django.http import HttpResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods
 
+from apps.voice.models import VoiceMember
+
 from .models import Conversation, Message
 from .rag import rag_pipeline
 
@@ -30,11 +32,13 @@ def conversation_view(request, pk):
     """View a conversation and chat interface."""
     conversation = get_object_or_404(Conversation, pk=pk)
     messages = conversation.messages.all()
+    voice_members = VoiceMember.objects.filter(is_active=True)
 
     context = {
         'conversation': conversation,
         'messages': messages,
         'conversations': Conversation.objects.all()[:10],
+        'voice_members': voice_members,
     }
     return render(request, 'chat/conversation.html', context)
 
@@ -80,10 +84,12 @@ def _sync_response(conversation: Conversation, user_message: str) -> HttpRespons
         # Get conversation history
         history = _get_conversation_history(conversation)
 
-        # Query RAG pipeline
-        response, chunks = rag_pipeline.query(
+        # Query RAG pipeline with optional voice translation
+        response, chunks = rag_pipeline.query_with_voice(
             question=user_message,
             conversation_history=history,
+            voice_member=conversation.voice,
+            voice_blend=conversation.voice_blend,
             stream=False,
         )
 
@@ -118,10 +124,12 @@ def _stream_response(conversation: Conversation, user_message: str) -> Streaming
             # Get conversation history
             history = _get_conversation_history(conversation)
 
-            # Query RAG pipeline with streaming
-            response_gen, chunks = rag_pipeline.query(
+            # Query RAG pipeline with streaming and optional voice translation
+            response_gen, chunks = rag_pipeline.query_with_voice(
                 question=user_message,
                 conversation_history=history,
+                voice_member=conversation.voice,
+                voice_blend=conversation.voice_blend,
                 stream=True,
             )
 
@@ -175,6 +183,29 @@ def _get_conversation_history(conversation: Conversation) -> list[dict]:
         {"role": msg.role, "content": msg.content}
         for msg in messages
     ]
+
+
+@require_http_methods(["POST"])
+def conversation_set_voice(request, pk):
+    """Set the voice for a conversation."""
+    conversation = get_object_or_404(Conversation, pk=pk)
+
+    voice_id = request.POST.get('voice_id')
+    blend = request.POST.get('blend') == 'true'
+
+    if blend:
+        conversation.voice = None
+        conversation.voice_blend = True
+    elif voice_id:
+        member = get_object_or_404(VoiceMember, pk=voice_id, is_active=True)
+        conversation.voice = member
+        conversation.voice_blend = False
+    else:
+        conversation.voice = None
+        conversation.voice_blend = False
+
+    conversation.save()
+    return redirect('chat:conversation', pk=conversation.pk)
 
 
 def _chunks_to_sources(chunks) -> list[dict]:

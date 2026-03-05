@@ -9,6 +9,8 @@ from pgvector.django import L2Distance
 from apps.core.llm_client import llm_client
 from apps.crawler.models import CrawledChunk
 from apps.knowledge.models import KnowledgeChunk
+from apps.voice.models import VoiceMember
+from apps.voice.translation import voice_translator
 
 logger = logging.getLogger(__name__)
 
@@ -188,6 +190,44 @@ Please answer the question based on the context provided above."""
         )
 
         return response, chunks
+
+    def query_with_voice(
+        self,
+        question: str,
+        conversation_history: list[dict] | None = None,
+        voice_member: VoiceMember | None = None,
+        voice_blend: bool = False,
+        stream: bool = False,
+    ) -> tuple[str | Generator[str, None, None], list[RetrievedChunk]]:
+        """
+        RAG query with optional voice translation.
+
+        When voice is active, the RAG step runs synchronously to collect the
+        full factual response, then the translation step streams its output.
+        """
+        needs_translation = voice_member is not None or voice_blend
+
+        if needs_translation:
+            rag_response, chunks = self.query(
+                question=question,
+                conversation_history=conversation_history,
+                stream=False,
+            )
+
+            translated = voice_translator.translate(
+                rag_response=rag_response,
+                member=voice_member,
+                blend=voice_blend,
+                stream=stream,
+            )
+
+            return translated, chunks
+        else:
+            return self.query(
+                question=question,
+                conversation_history=conversation_history,
+                stream=stream,
+            )
 
 
 # Default pipeline instance

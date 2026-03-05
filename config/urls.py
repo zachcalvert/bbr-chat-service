@@ -10,4 +10,5 @@ urlpatterns = [
     path('knowledge/', include('apps.knowledge.urls')),
     path('crawler/', include('apps.crawler.urls')),
     path('chat/', include('apps.chat.urls')),
+    path('voice/', include('apps.voice.urls')),
 ]

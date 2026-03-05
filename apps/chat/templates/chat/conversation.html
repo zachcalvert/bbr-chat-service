@@ -17,6 +17,32 @@
     </aside>
 
     <main class="chat-main">
+        <div style="padding: 0.5rem 1rem; border-bottom: 1px solid var(--gray-200); display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem;">
+            <span style="color: var(--gray-500);">Voice:</span>
+            <form method="post" action="{% url 'chat:set_voice' conversation.pk %}" style="display: flex; gap: 0.5rem; align-items: center;">
+                {% csrf_token %}
+                <select name="voice_id" class="form-input" style="padding: 0.25rem 0.5rem; width: auto;" onchange="this.form.querySelector('[name=blend]').checked = false; this.form.submit()">
+                    <option value="">None</option>
+                    {% for member in voice_members %}
+                    <option value="{{ member.pk }}" {% if conversation.voice_id == member.pk and not conversation.voice_blend %}selected{% endif %}>
+                        {{ member.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <label style="display: flex; align-items: center; gap: 0.25rem; color: var(--gray-600);">
+                    <input type="checkbox" name="blend" value="true"
+                           {% if conversation.voice_blend %}checked{% endif %}
+                           onchange="this.form.querySelector('[name=voice_id]').value = ''; this.form.submit()">
+                    Group Blend
+                </label>
+            </form>
+            {% if conversation.voice or conversation.voice_blend %}
+            <span class="badge badge-running">
+                {% if conversation.voice_blend %}Group Blend{% else %}{{ conversation.voice.name }}{% endif %}
+            </span>
+            {% endif %}
+        </div>
+
         <div class="chat-messages" id="chat-messages">
             {% for message in messages %}
             <div class="message message-{{ message.role }}">

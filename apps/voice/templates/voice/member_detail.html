@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}{{ member.name }} - Voices - Incubator{% endblock %}
+
+{% block content %}
+<a href="{% url 'voice:member_list' %}" class="back-link">&larr; All Voices</a>
+
+<div class="page-header">
+    <h1>{{ member.name }}</h1>
+    {% if member.is_active %}
+    <span class="badge badge-success">Active</span>
+    {% else %}
+    <span class="badge badge-muted">Inactive</span>
+    {% endif %}
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-value">{{ member.message_count }}</div>
+        <div class="stat-label">Total Messages</div>
+    </div>
+</div>
+
+<div class="content-section">
+    <h2>Sample Messages</h2>
+    {% for msg in sample_messages %}
+    <div class="chunk-card">
+        <p>{{ msg.content }}</p>
+        {% if msg.original_timestamp %}
+        <div class="entry-meta" style="margin-top: 0.5rem;">
+            <span>{{ msg.original_timestamp|date:"M d, Y g:i A" }}</span>
+        </div>
+        {% endif %}
+    </div>
+    {% empty %}
+    <p class="empty-state">No messages found.</p>
+    {% endfor %}
+</div>
+{% endblock %}

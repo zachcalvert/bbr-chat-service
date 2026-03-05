@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'apps.knowledge',
     'apps.crawler',
     'apps.chat',
+    'apps.voice',
 ]
 
 MIDDLEWARE = [
@@ -126,3 +127,6 @@ EMBED_DIMENSIONS = int(os.environ.get('EMBED_DIMENSIONS', '768'))
 RAG_CHUNK_SIZE = int(os.environ.get('RAG_CHUNK_SIZE', '500'))
 RAG_CHUNK_OVERLAP = int(os.environ.get('RAG_CHUNK_OVERLAP', '50'))
 RAG_TOP_K = int(os.environ.get('RAG_TOP_K', '5'))
+
+# Voice Translation Configuration
+VOICE_NUM_EXAMPLES = int(os.environ.get('VOICE_NUM_EXAMPLES', '10'))

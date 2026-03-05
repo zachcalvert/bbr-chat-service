@@ -690,6 +690,7 @@
                 <a href="{% url 'knowledge:list' %}" class="{% if 'knowledge' in request.path %}active{% endif %}">Knowledge Base</a>
                 <a href="{% url 'crawler:topic_list' %}" class="{% if 'crawler' in request.path %}active{% endif %}">Web Crawler</a>
                 <a href="{% url 'chat:list' %}" class="{% if 'chat' in request.path %}active{% endif %}">Chat</a>
+                <a href="{% url 'voice:member_list' %}" class="{% if 'voice' in request.path %}active{% endif %}">Voices</a>
             </div>
             <div style="margin-top: auto; padding: 1rem; border-top: 1px solid var(--gray-700); font-size: 0.875rem;">
                 <span style="color: var(--gray-400);">{{ user.username }}</span>

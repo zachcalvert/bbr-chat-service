@@ -7,6 +7,18 @@ class Conversation(TimestampedModel):
     """A chat conversation."""
 
     title = models.CharField(max_length=255, blank=True)
+    voice = models.ForeignKey(
+        'voice.VoiceMember',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='conversations',
+        help_text="Writing voice to use for responses.",
+    )
+    voice_blend = models.BooleanField(
+        default=False,
+        help_text="If True, blend all active voices instead of a specific member.",
+    )
 
     class Meta:
         ordering = ['-updated_at']

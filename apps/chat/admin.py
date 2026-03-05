@@ -15,9 +15,17 @@ class MessageInline(admin.TabularInline):
 
 @admin.register(Conversation)
 class ConversationAdmin(admin.ModelAdmin):
-    list_display = ['title', 'message_count', 'created_at', 'updated_at']
+    list_display = ['title', 'voice_display', 'message_count', 'created_at', 'updated_at']
     search_fields = ['title']
     inlines = [MessageInline]
+
+    def voice_display(self, obj):
+        if obj.voice_blend:
+            return "Group Blend"
+        elif obj.voice:
+            return obj.voice.name
+        return "—"
+    voice_display.short_description = 'Voice'
 
     def message_count(self, obj):
         return obj.messages.count()
