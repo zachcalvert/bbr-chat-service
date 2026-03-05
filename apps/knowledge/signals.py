@@ -4,7 +4,7 @@ import logging
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from apps.core.ollama_client import ollama_client
+from apps.core.llm_client import llm_client
 from apps.core.text_processing import chunk_text
 
 from .models import KnowledgeChunk, KnowledgeEntry
@@ -58,7 +58,7 @@ def process_knowledge_entry(sender, instance, created, **kwargs):
         logger.info(f"Generating embeddings for {len(chunk_texts)} chunks")
 
         # Get embeddings for all chunks
-        embeddings = ollama_client.embed(chunk_texts)
+        embeddings = llm_client.embed(chunk_texts)
 
         if not embeddings:
             logger.error(f"No embeddings returned for entry {instance.pk}")

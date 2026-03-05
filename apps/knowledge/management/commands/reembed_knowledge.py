@@ -1,7 +1,7 @@
 """Management command to re-embed knowledge entries."""
 from django.core.management.base import BaseCommand
 
-from apps.core.ollama_client import ollama_client
+from apps.core.llm_client import llm_client
 from apps.core.text_processing import chunk_text
 from apps.knowledge.models import KnowledgeChunk, KnowledgeEntry
 
@@ -36,9 +36,10 @@ class Command(BaseCommand):
             self.stdout.write(self.style.WARNING('No entries found to process'))
             return
 
-        # Check Ollama connectivity
-        if not ollama_client.is_healthy():
-            self.stdout.write(self.style.ERROR('Ollama server is not reachable'))
+        # Verify API keys are configured
+        from django.conf import settings
+        if not settings.GROQ_API_KEY or not settings.OPENAI_API_KEY:
+            self.stdout.write(self.style.ERROR('GROQ_API_KEY and OPENAI_API_KEY must be set'))
             return
 
         self.stdout.write(f'Processing {entries.count()} entries...')
@@ -80,7 +81,7 @@ class Command(BaseCommand):
 
                 # Get embeddings
                 self.stdout.write(f'    Embedding {len(chunk_texts)} chunks...')
-                embeddings = ollama_client.embed(chunk_texts)
+                embeddings = llm_client.embed(chunk_texts)
 
                 if not embeddings or len(embeddings) != len(chunk_texts):
                     self.stdout.write(self.style.ERROR(f'    Embedding failed'))

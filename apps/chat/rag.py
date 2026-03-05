@@ -6,7 +6,7 @@ from typing import Generator
 from django.conf import settings
 from pgvector.django import L2Distance
 
-from apps.core.ollama_client import ollama_client
+from apps.core.llm_client import llm_client
 from apps.crawler.models import CrawledChunk
 from apps.knowledge.models import KnowledgeChunk
 
@@ -32,7 +32,7 @@ class RAGPipeline:
         chat_model: str | None = None,
     ):
         self.top_k = top_k or settings.RAG_TOP_K
-        self.chat_model = chat_model or settings.OLLAMA_CHAT_MODEL
+        self.chat_model = chat_model or settings.CHAT_MODEL
 
     def retrieve(self, query: str) -> list[RetrievedChunk]:
         """
@@ -45,7 +45,7 @@ class RAGPipeline:
             List of relevant chunks with metadata
         """
         # Get query embedding
-        query_embedding = ollama_client.embed_single(query)
+        query_embedding = llm_client.embed_single(query)
 
         if not query_embedding:
             logger.warning("Failed to embed query")
@@ -150,7 +150,7 @@ Please answer the question based on the context provided above."""
 
         messages.append({"role": "user", "content": user_message})
 
-        return ollama_client.chat(
+        return llm_client.chat(
             messages=messages,
             system=system_prompt,
             stream=stream,

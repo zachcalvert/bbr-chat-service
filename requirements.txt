@@ -16,11 +16,17 @@ trafilatura>=1.6
 requests>=2.31
 duckduckgo-search>=4.1
 
-# Ollama client
-httpx>=0.26
+# LLM providers (Groq chat + OpenAI embeddings)
+openai>=1.0
 
 # Frontend
 django-htmx>=1.17
+
+# Server
+gunicorn>=21.2
+
+# Static files
+whitenoise>=6.6
 
 # Utilities
 python-dotenv>=1.0

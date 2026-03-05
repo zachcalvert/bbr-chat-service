@@ -7,7 +7,7 @@ from celery import shared_task
 from django.utils import timezone
 from duckduckgo_search import DDGS
 
-from apps.core.ollama_client import ollama_client
+from apps.core.llm_client import llm_client
 from apps.core.text_processing import chunk_text
 
 from .models import CrawledChunk, CrawledPage, CrawlJob, Topic
@@ -204,7 +204,7 @@ def process_page_chunks(page: CrawledPage) -> None:
 
         if chunk_texts:
             # Get embeddings for all chunks
-            embeddings = ollama_client.embed(chunk_texts)
+            embeddings = llm_client.embed(chunk_texts)
 
             # Create chunk objects with embeddings
             for chunk_data, embedding in zip(chunks_to_create, embeddings):
