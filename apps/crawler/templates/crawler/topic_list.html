@@ -19,7 +19,7 @@
             <span class="badge badge-muted">Inactive</span>
             {% endif %}
         </div>
-        <p class="keywords">Keywords: {{ topic.keywords_display }}</p>
+        <p class="keywords">Keywords: {{ topic.keywords_display }}{% if topic.seed_urls %} | {{ topic.seed_urls|length }} seed URL{{ topic.seed_urls|length|pluralize }}{% endif %}</p>
         <div class="topic-meta">
             <span>{{ topic.crawled_pages.count }} pages</span>
             <span>Every {{ topic.crawl_frequency_hours }}h</span>

@@ -13,6 +13,14 @@
 <form method="post" class="form">
     {% csrf_token %}
 
+    {% if form.non_field_errors %}
+    <div style="margin-bottom: 1.5rem;">
+        {% for error in form.non_field_errors %}
+        <span class="error">{{ error }}</span>
+        {% endfor %}
+    </div>
+    {% endif %}
+
     <div class="form-group">
         <label for="id_name">Topic Name</label>
         {{ form.name }}
@@ -28,6 +36,15 @@
         <span class="error">{{ form.keywords_input.errors.0 }}</span>
         {% endif %}
         <p class="help-text">Enter one keyword or phrase per line. These will be used to search for relevant pages.</p>
+    </div>
+
+    <div class="form-group">
+        <label for="id_seed_urls_input">Seed URLs</label>
+        {{ form.seed_urls_input }}
+        {% if form.seed_urls_input.errors %}
+        <span class="error">{{ form.seed_urls_input.errors.0 }}</span>
+        {% endif %}
+        <p class="help-text">Enter one URL per line. The crawler will visit these pages and follow same-domain links.</p>
     </div>
 
     <div class="form-row">

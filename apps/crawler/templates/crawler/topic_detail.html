@@ -33,6 +33,18 @@
         <span>{{ topic.keywords_display }}</span>
     </div>
     <div class="info-row">
+        <strong>Seed URLs:</strong>
+        <span>
+            {% if topic.seed_urls %}
+                {% for url in topic.seed_urls %}
+                    <a href="{{ url }}" target="_blank" rel="noopener">{{ url|truncatechars:60 }}</a>{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+            {% else %}
+                None
+            {% endif %}
+        </span>
+    </div>
+    <div class="info-row">
         <strong>Crawl Frequency:</strong>
         <span>Every {{ topic.crawl_frequency_hours }} hours</span>
     </div>

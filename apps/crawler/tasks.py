@@ -1,5 +1,6 @@
 import logging
 from datetime import timedelta
+from urllib.parse import urlparse
 
 import requests
 import trafilatura
@@ -44,12 +45,31 @@ def crawl_topic(self, topic_id: int, job_id: int | None = None):
     job.save()
 
     try:
-        # Discover URLs using DuckDuckGo
-        urls = discover_urls(topic.keywords, max_results=topic.max_pages_per_crawl)
+        # Discover URLs from seed pages and keyword search
+        all_urls = []
+
+        if topic.seed_urls:
+            seed_discovered = discover_urls_from_seeds(
+                topic.seed_urls,
+                max_results=topic.max_pages_per_crawl,
+            )
+            all_urls.extend(seed_discovered)
+            logger.info(f"Discovered {len(seed_discovered)} URLs from seed URLs for topic {topic.name}")
+
+        if topic.keywords:
+            remaining_slots = topic.max_pages_per_crawl - len(all_urls)
+            if remaining_slots > 0:
+                keyword_discovered = discover_urls(topic.keywords, max_results=remaining_slots)
+                for url in keyword_discovered:
+                    if url not in all_urls:
+                        all_urls.append(url)
+                logger.info(f"Discovered {len(keyword_discovered)} URLs from keywords for topic {topic.name}")
+
+        urls = all_urls[:topic.max_pages_per_crawl]
         job.pages_discovered = len(urls)
         job.save()
 
-        logger.info(f"Discovered {len(urls)} URLs for topic {topic.name}")
+        logger.info(f"Discovered {len(urls)} total URLs for topic {topic.name}")
 
         # Crawl each URL
         crawled_count = 0
@@ -99,6 +119,9 @@ def discover_urls(keywords: list[str], max_results: int = 10) -> list[str]:
     Returns:
         List of discovered URLs
     """
+    if not keywords:
+        return []
+
     urls = []
 
     try:
@@ -120,6 +143,68 @@ def discover_urls(keywords: list[str], max_results: int = 10) -> list[str]:
         logger.error(f"DuckDuckGo search error: {e}")
 
     return urls[:max_results]
+
+
+def discover_urls_from_seeds(seed_urls: list[str], max_results: int = 10) -> list[str]:
+    """
+    Discover URLs by fetching seed pages and extracting same-domain links.
+
+    Args:
+        seed_urls: List of seed URLs to fetch and extract links from
+        max_results: Maximum URLs to return
+
+    Returns:
+        List of discovered URLs (including the seed URLs themselves)
+    """
+    from lxml import html as lxml_html
+
+    discovered = []
+
+    for seed_url in seed_urls:
+        if seed_url not in discovered:
+            discovered.append(seed_url)
+
+        try:
+            response = requests.get(
+                seed_url,
+                timeout=30,
+                headers={
+                    'User-Agent': 'Mozilla/5.0 (compatible; IncubatorBot/1.0; +http://localhost)'
+                },
+            )
+            response.raise_for_status()
+
+            tree = lxml_html.fromstring(response.text)
+            tree.make_links_absolute(seed_url)
+
+            seed_domain = urlparse(seed_url).netloc
+
+            for element, attribute, link, pos in tree.iterlinks():
+                if attribute != 'href':
+                    continue
+
+                parsed = urlparse(link)
+                if parsed.netloc != seed_domain:
+                    continue
+                if parsed.scheme not in ('http', 'https'):
+                    continue
+
+                clean_url = parsed._replace(fragment='').geturl()
+
+                if clean_url not in discovered:
+                    discovered.append(clean_url)
+
+                if len(discovered) >= max_results:
+                    break
+
+        except Exception as e:
+            logger.warning(f"Error extracting links from seed URL {seed_url}: {e}")
+            continue
+
+        if len(discovered) >= max_results:
+            break
+
+    return discovered[:max_results]
 
 
 def crawl_url(url: str, topic: Topic, job: CrawlJob) -> CrawledPage | None:

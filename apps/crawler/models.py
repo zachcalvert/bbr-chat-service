@@ -10,7 +10,13 @@ class Topic(TimestampedModel):
     name = models.CharField(max_length=255)
     keywords = models.JSONField(
         default=list,
+        blank=True,
         help_text="List of keywords to search for"
+    )
+    seed_urls = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="List of seed URLs to crawl and extract links from"
     )
     is_active = models.BooleanField(default=True)
     crawl_frequency_hours = models.IntegerField(
@@ -32,6 +38,10 @@ class Topic(TimestampedModel):
     @property
     def keywords_display(self):
         return ", ".join(self.keywords) if self.keywords else "None"
+
+    @property
+    def seed_urls_display(self):
+        return ", ".join(self.seed_urls) if self.seed_urls else "None"
 
 
 class CrawlJob(TimestampedModel):
