@@ -1,16 +1,9 @@
-import logging
-
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods
 
-from apps.core.ollama_client import ollama_client
-from apps.core.text_processing import chunk_text
-
 from .forms import KnowledgeEntryForm
-from .models import KnowledgeChunk, KnowledgeEntry
-
-logger = logging.getLogger(__name__)
+from .models import KnowledgeEntry
 
 
 def knowledge_list(request):
@@ -48,7 +41,7 @@ def knowledge_create(request):
         form = KnowledgeEntryForm(request.POST)
         if form.is_valid():
             entry = form.save()
-            _process_entry_chunks(entry)
+            # Chunks are created automatically via post_save signal
             messages.success(request, f'Knowledge entry "{entry.title}" created and embedded.')
             return redirect('knowledge:detail', pk=entry.pk)
     else:
@@ -64,10 +57,10 @@ def knowledge_edit(request, pk):
     if request.method == 'POST':
         form = KnowledgeEntryForm(request.POST, instance=entry)
         if form.is_valid():
-            entry = form.save()
-            # Re-chunk and re-embed on update
+            # Delete existing chunks so signal will re-create them
             entry.chunks.all().delete()
-            _process_entry_chunks(entry)
+            entry = form.save()
+            # Chunks are re-created automatically via post_save signal
             messages.success(request, f'Knowledge entry "{entry.title}" updated.')
             return redirect('knowledge:detail', pk=entry.pk)
     else:
@@ -84,37 +77,3 @@ def knowledge_delete(request, pk):
     entry.delete()
     messages.success(request, f'Knowledge entry "{title}" deleted.')
     return redirect('knowledge:list')
-
-
-def _process_entry_chunks(entry: KnowledgeEntry) -> None:
-    """Chunk and embed a knowledge entry."""
-    try:
-        chunks_to_create = []
-        chunk_texts = []
-
-        for chunk_index, chunk_content in chunk_text(entry.content):
-            chunk_texts.append(chunk_content)
-            chunks_to_create.append({
-                'entry': entry,
-                'content': chunk_content,
-                'chunk_index': chunk_index,
-            })
-
-        if chunk_texts:
-            # Get embeddings for all chunks
-            embeddings = ollama_client.embed(chunk_texts)
-
-            # Create chunk objects with embeddings
-            for chunk_data, embedding in zip(chunks_to_create, embeddings):
-                KnowledgeChunk.objects.create(
-                    entry=chunk_data['entry'],
-                    content=chunk_data['content'],
-                    chunk_index=chunk_data['chunk_index'],
-                    embedding=embedding,
-                )
-
-            logger.info(f"Created {len(chunks_to_create)} chunks for entry {entry.pk}")
-
-    except Exception as e:
-        logger.error(f"Error processing chunks for entry {entry.pk}: {e}")
-        raise
