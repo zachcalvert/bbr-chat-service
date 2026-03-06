@@ -10,6 +10,14 @@ class VoiceMessageInline(admin.TabularInline):
     can_delete = False
     max_num = 20
 
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request)
+            .defer('embedding')
+            .order_by('-original_timestamp')[:20]
+        )
+
     def has_add_permission(self, request, obj=None):
         return False
 
