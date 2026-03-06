@@ -18,4 +18,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy project
 COPY . .
 
+# Collect static files at build time so they're baked into the image.
+# A dummy SECRET_KEY is used here — it's only needed for Django to load settings.
+RUN SECRET_KEY=build-collect-static python manage.py collectstatic --noinput
+
 EXPOSE 8000
