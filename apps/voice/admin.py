@@ -11,12 +11,11 @@ class VoiceMessageInline(admin.TabularInline):
     max_num = 20
 
     def get_queryset(self, request):
-        return (
-            super()
-            .get_queryset(request)
-            .defer('embedding')
-            .order_by('-original_timestamp')[:20]
-        )
+        qs = super().get_queryset(request).defer('embedding')
+        # Limit to the 20 most recent message IDs to avoid fetching
+        # every message (and its embedding) for members with thousands.
+        recent_ids = qs.order_by('-original_timestamp').values_list('pk', flat=True)[:20]
+        return qs.filter(pk__in=list(recent_ids)).order_by('-original_timestamp')
 
     def has_add_permission(self, request, obj=None):
         return False
