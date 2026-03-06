@@ -32,3 +32,6 @@ Thumbs.db
 
 # Docker
 docker-compose.override.yml
+
+# Chat history
+groupme_message.json
