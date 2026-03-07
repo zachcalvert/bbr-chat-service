@@ -6,6 +6,7 @@ class LoginRequiredMiddleware:
     EXEMPT_URLS = [
         settings.LOGIN_URL,
         '/admin/',
+        '/chat/api/',
     ]
 
     def __init__(self, get_response):

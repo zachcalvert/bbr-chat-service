@@ -1,8 +1,10 @@
 import json
 import logging
 
-from django.http import HttpResponse, StreamingHttpResponse
+from django.conf import settings
+from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
 from apps.voice.models import VoiceMember
@@ -224,3 +226,31 @@ def _chunks_to_sources(chunks) -> list[dict]:
             })
 
     return sources
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def groupme_query(request):
+    """GroupMe bot API endpoint. Requires Bearer token auth via Authorization header."""
+    auth_header = request.headers.get('Authorization', '')
+    expected = settings.API_SECRET_KEY
+    if not expected or not auth_header.startswith('Bearer ') or auth_header[7:] != expected:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    groupme_id = data.get('groupme_id', '').strip()
+    text = data.get('text', '').strip()
+
+    if not text:
+        return JsonResponse({'error': 'text is required'}, status=400)
+
+    try:
+        response, _chunks = rag_pipeline.query(question=text, stream=False)
+        return JsonResponse({'groupme_id': groupme_id, 'response': response})
+    except Exception as e:
+        logger.error(f"groupme_query error: {e}")
+        return JsonResponse({'error': 'Internal server error'}, status=500)

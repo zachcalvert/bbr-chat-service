@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Incubator{% endblock %}</title>
+    <title>{% block title %}bbot{% endblock %}</title>
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <style>
         :root {
@@ -683,7 +683,7 @@
     <div class="app-container">
         <nav class="sidebar">
             <div class="sidebar-brand">
-                <h1>Incubator</h1>
+                <h1>bbot</h1>
             </div>
             <div class="sidebar-nav">
                 <a href="{% url 'core:dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">Dashboard</a>

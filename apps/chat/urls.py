@@ -11,4 +11,5 @@ urlpatterns = [
     path('<int:pk>/delete/', views.conversation_delete, name='delete'),
     path('<int:pk>/send/', views.send_message, name='send'),
     path('<int:pk>/voice/', views.conversation_set_voice, name='set_voice'),
+    path('api/query/', views.groupme_query, name='api_query'),
 ]

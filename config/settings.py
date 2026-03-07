@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Third party
+    'django_extensions',
     'django_htmx',
     'django_celery_beat',
     # Local apps
@@ -130,3 +131,6 @@ RAG_TOP_K = int(os.environ.get('RAG_TOP_K', '5'))
 
 # Voice Translation Configuration
 VOICE_NUM_EXAMPLES = int(os.environ.get('VOICE_NUM_EXAMPLES', '10'))
+
+# API Authentication
+API_SECRET_KEY = os.environ.get('API_SECRET_KEY', '')
