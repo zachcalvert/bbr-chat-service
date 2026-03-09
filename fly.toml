@@ -5,6 +5,7 @@ primary_region = "ord"
 
 [deploy]
   release_command = "python manage.py migrate --noinput"
+  release_command_timeout = "300s"
 
 [env]
   DEBUG = "False"
