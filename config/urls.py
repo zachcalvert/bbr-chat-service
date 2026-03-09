@@ -11,4 +11,5 @@ urlpatterns = [
     path('crawler/', include('apps.crawler.urls')),
     path('chat/', include('apps.chat.urls')),
     path('voice/', include('apps.voice.urls')),
+    path('groupme/', include('apps.groupme.urls')),
 ]

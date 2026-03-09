@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'apps.crawler',
     'apps.chat',
     'apps.voice',
+    'apps.groupme',
 ]
 
 MIDDLEWARE = [
