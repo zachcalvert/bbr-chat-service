@@ -25,12 +25,6 @@ def groupme_callback(request):
     runs RAG with optional voice translation, and posts the response back.
     Always returns 204 as GroupMe expects.
     """
-    # Auth check
-    auth_header = request.headers.get('Authorization', '')
-    expected = settings.API_SECRET_KEY
-    if expected and (not auth_header.startswith('Bearer ') or auth_header[7:] != expected):
-        return HttpResponse(status=401)
-
     try:
         content = json.loads(request.body)
     except json.JSONDecodeError:
