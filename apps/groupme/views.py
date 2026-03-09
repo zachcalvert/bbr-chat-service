@@ -88,6 +88,7 @@ def groupme_callback(request):
                 voice_member=bot.voice,
                 voice_blend=bot.voice_blend,
                 stream=False,
+                system_prompt=bot.system_prompt or None,
             )
         except Exception as e:
             logger.error("RAG error for bot %s: %s", bot.name, e)
@@ -103,6 +104,10 @@ def groupme_callback(request):
                 duration_ms=_elapsed_ms(start),
             )
             continue
+
+        # Truncate if max_response_length is set
+        if bot.max_response_length and len(response_text) > bot.max_response_length:
+            response_text = response_text[:bot.max_response_length].rsplit(' ', 1)[0] + '…'
 
         try:
             post_message(bot.bot_id, response_text)

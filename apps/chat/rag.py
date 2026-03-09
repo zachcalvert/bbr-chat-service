@@ -106,12 +106,23 @@ class RAGPipeline:
 
         return "\n\n---\n\n".join(context_parts)
 
+    DEFAULT_SYSTEM_PROMPT = """You are a helpful AI assistant for a business incubator.
+You answer questions using the provided context from the knowledge base and crawled web content.
+
+Guidelines:
+- Base your answers on the provided context
+- If the context doesn't contain relevant information, say so
+- Be concise but thorough
+- When citing information, mention the source
+- If asked about topics not in the context, provide general guidance but note that specific information wasn't found"""
+
     def generate(
         self,
         query: str,
         context: str,
         conversation_history: list[dict] | None = None,
         stream: bool = False,
+        system_prompt: str | None = None,
     ) -> str | Generator[str, None, None]:
         """
         Generate a response using the LLM.
@@ -121,19 +132,12 @@ class RAGPipeline:
             context: Retrieved context
             conversation_history: Previous messages in the conversation
             stream: Whether to stream the response
+            system_prompt: Custom system prompt (uses default if not provided)
 
         Returns:
             Generated response or generator if streaming
         """
-        system_prompt = """You are a helpful AI assistant for a business incubator.
-You answer questions using the provided context from the knowledge base and crawled web content.
-
-Guidelines:
-- Base your answers on the provided context
-- If the context doesn't contain relevant information, say so
-- Be concise but thorough
-- When citing information, mention the source
-- If asked about topics not in the context, provide general guidance but note that specific information wasn't found"""
+        system_prompt = system_prompt or self.DEFAULT_SYSTEM_PROMPT
 
         # Build messages
         messages = []
@@ -163,6 +167,7 @@ Please answer the question based on the context provided above."""
         question: str,
         conversation_history: list[dict] | None = None,
         stream: bool = False,
+        system_prompt: str | None = None,
     ) -> tuple[str | Generator[str, None, None], list[RetrievedChunk]]:
         """
         Complete RAG query: retrieve and generate.
@@ -171,6 +176,7 @@ Please answer the question based on the context provided above."""
             question: The user's question
             conversation_history: Previous messages
             stream: Whether to stream the response
+            system_prompt: Custom system prompt (uses default if not provided)
 
         Returns:
             Tuple of (response, retrieved_chunks)
@@ -187,6 +193,7 @@ Please answer the question based on the context provided above."""
             context=context,
             conversation_history=conversation_history,
             stream=stream,
+            system_prompt=system_prompt,
         )
 
         return response, chunks
@@ -198,6 +205,7 @@ Please answer the question based on the context provided above."""
         voice_member: VoiceMember | None = None,
         voice_blend: bool = False,
         stream: bool = False,
+        system_prompt: str | None = None,
     ) -> tuple[str | Generator[str, None, None], list[RetrievedChunk]]:
         """
         RAG query with optional voice translation.
@@ -212,6 +220,7 @@ Please answer the question based on the context provided above."""
                 question=question,
                 conversation_history=conversation_history,
                 stream=False,
+                system_prompt=system_prompt,
             )
 
             translated = voice_translator.translate(
@@ -227,6 +236,7 @@ Please answer the question based on the context provided above."""
                 question=question,
                 conversation_history=conversation_history,
                 stream=stream,
+                system_prompt=system_prompt,
             )
 
 

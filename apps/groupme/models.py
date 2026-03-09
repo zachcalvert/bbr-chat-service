@@ -35,6 +35,21 @@ class GroupMeBot(TimestampedModel):
         default=False,
         help_text="If True, blend all active voices instead of a specific member.",
     )
+    system_prompt = models.TextField(
+        blank=True,
+        help_text=(
+            "Custom system prompt for this bot. Overrides the default RAG prompt. "
+            "Use this to set personality, constraints, response style, etc."
+        ),
+    )
+    max_response_length = models.IntegerField(
+        null=True,
+        blank=True,
+        help_text=(
+            "Max character length for responses. "
+            "Leave blank for no limit (GroupMe messages are split at 1000 chars automatically)."
+        ),
+    )
 
     class Meta:
         verbose_name = 'GroupMe Bot'
