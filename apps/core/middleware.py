@@ -7,6 +7,7 @@ class LoginRequiredMiddleware:
         settings.LOGIN_URL,
         '/admin/',
         '/chat/api/',
+        '/groupme/',
     ]
 
     def __init__(self, get_response):
