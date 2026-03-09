@@ -9,8 +9,7 @@ from .models import KnowledgeEntry
 def knowledge_list(request):
     """List all knowledge entries."""
     entries = KnowledgeEntry.objects.all()
-    categories = KnowledgeEntry.objects.values_list('category', flat=True).distinct()
-    categories = [c for c in categories if c]
+    categories = sorted(set(c for c in KnowledgeEntry.objects.values_list('category', flat=True) if c))
 
     category_filter = request.GET.get('category')
     if category_filter:
