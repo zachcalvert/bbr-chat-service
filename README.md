@@ -1,6 +1,6 @@
 # BBR Chat Service
 
-A RAG (Retrieval-Augmented Generation) chat application for a business incubator. Ask questions and get accurate, context-grounded answers drawn from a curated knowledge base and crawled web content — optionally delivered in the writing voice of someone from your group chat.
+A RAG (Retrieval-Augmented Generation) chat application for the BBR fantasy football league. Ask questions about league history, memorable moments, trades, scores, and more — get accurate, context-grounded answers drawn from a curated knowledge base and crawled web content, optionally delivered in the writing voice of a league member from your group chat.
 
 ## Stack
 
